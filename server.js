@@ -5,41 +5,43 @@ const socketIo = require('socket.io');
 const app = express();
 const server = http.createServer(app);
 const io = socketIo(server);
+app.use(express.json());
 
-// Manejar conexiones de WebSockets
 io.on('connection', (socket) => {
     console.log('Nuevo usuario conectado');
 
-    // Manejar eventos de chat
+    socket.on('usuario_conectado', (nombreUsuario) => {
+        console.log(`Usuario ${nombreUsuario} conectado`);
+        socket.nombreUsuario = nombreUsuario;
+        io.emit('mensaje', { nombreUsuario: 'Sistema', mensaje: `Bienvenido, ${nombreUsuario}!` });
+    });
+
     socket.on('mensaje', (mensaje) => {
         console.log('Mensaje recibido:', mensaje);
-
-        // Enviar el mensaje a todos los clientes conectados
-        io.emit('mensaje', mensaje);
+        io.emit('mensaje', { nombreUsuario: socket.nombreUsuario, mensaje: mensaje });
     });
+    
 });
 
-// Añadir soporte para parsear el cuerpo de las solicitudes como JSON
-app.use(express.json());
-
-// Manejar solicitudes POST para mensajes AJAX
 app.post('/enviar-mensaje', (req, res) => {
     const mensaje = req.body.mensaje;
+    const nombreUsuario = req.body.nombreUsuario;
+
     console.log('Mensaje recibido (AJAX):', mensaje);
 
-    // Enviar el mensaje a todos los clientes conectados
-    io.emit('mensaje', mensaje);
+    io.emit('mensaje', { nombreUsuario, mensaje });
 
     res.send('Mensaje enviado correctamente');
 });
 
-
-// Servir la página HTML estática
 app.get('/', (req, res) => {
-    res.sendFile(__dirname + '/index.html');
+    res.sendFile(__dirname + '/chats/index.html');
 });
 
-// Iniciar el servidor
+app.get('/login', (req, res) => {
+    res.sendFile(__dirname + '/auth/login.html');
+});
+
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
     console.log(`Servidor escuchando en el puerto ${PORT}`);

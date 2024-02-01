@@ -8,7 +8,8 @@
 </head>
 <body class="font-sans bg-gray-100 h-screen flex">
     <div id="contactos" class="w-1/4 bg-white shadow overflow-y-auto">
-        <!-- Lista de contactos -->
+        
+<!---------------------------------------------- Lista de contactos ------------------------------------------------>
         <div class="contacto p-4 cursor-pointer hover:bg-gray-200 flex items-center">
             <img src="https://cdn.hobbyconsolas.com/sites/navi.axelspringer.es/public/media/image/2023/03/left-4-dead-2-2993804.jpg?tf=3840x" alt="Foto de Perfil" class="w-10 h-10 rounded-full mr-4">
             <div>
@@ -23,7 +24,8 @@
             <button class="text-sm text-white bg-gray-800 px-2 py-1 rounded">Cerrar Sesión</button>
         </div>
         <div id="mensajes" class="flex-grow overflow-y-auto p-4 bg-gray-200">
-            <!-- Mensajes -->
+
+<!------------------------------------------------------ Mensajes --------------------------------------------------->
             <div class="mensaje salida bg-blue-500 text-white p-3 rounded mb-2 max-w-md self-end">
                 Hola, ¿cómo estás?
             </div>
@@ -53,8 +55,7 @@
         function enviarMensaje() {
             const mensaje = $('#mensajeInput').val();
     
-            // Obtener el nombre de usuario del Local Storage
-            const nombreUsuario = localStorage.getItem('nombreUsuario');
+            const nombreUsuario = sessionStorage.getItem('nombreUsuario');
     
             console.log('Mensaje a enviar (antes de AJAX):', mensaje);
     

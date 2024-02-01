@@ -10,9 +10,10 @@ app.use(express.json());
 io.on('connection', (socket) => {
     console.log('Nuevo usuario conectado');
 
-    socket.on('usuario_conectado', (nombreUsuario) => {
-        console.log(`Usuario ${nombreUsuario} conectado`);
+    socket.on('usuario_conectado', ({ nombreUsuario, userID }) => {
+        console.log(`Usuario ${nombreUsuario} (ID: ${userID}) conectado`);
         socket.nombreUsuario = nombreUsuario;
+        socket.userID = userID;
         io.emit('mensaje', { nombreUsuario: 'Sistema', mensaje: `Bienvenido, ${nombreUsuario}!` });
     });
 
@@ -26,10 +27,11 @@ io.on('connection', (socket) => {
 app.post('/enviar-mensaje', (req, res) => {
     const mensaje = req.body.mensaje;
     const nombreUsuario = req.body.nombreUsuario;
+    const userID = req.body.userID;
 
     console.log('Mensaje recibido (AJAX):', mensaje);
 
-    io.emit('mensaje', { nombreUsuario, mensaje });
+    io.emit('mensaje', { nombreUsuario, mensaje, userID });
 
     res.send('Mensaje enviado correctamente');
 });

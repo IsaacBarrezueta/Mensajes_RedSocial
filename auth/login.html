@@ -10,50 +10,56 @@
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const socket = io();
-
+    
             document.querySelector('#loginForm').addEventListener('submit', function (e) {
                 e.preventDefault();
                 const nombreUsuario = document.getElementById('nombre').value;
-
-                // Almacenar el nombre de usuario en el localStorage
-                localStorage.setItem('nombreUsuario', nombreUsuario);
-
-                // Enviar el nombre de usuario al servidor de sockets
-                socket.emit('usuario_conectado', nombreUsuario);
-
+                const userID = document.getElementById('ID').value;
+    
+                // Almacenar el nombre de usuario y el ID en el sessionStorage
+                sessionStorage.setItem('nombreUsuario', nombreUsuario);
+                sessionStorage.setItem('userID', userID);
+    
+                // Enviar el nombre de usuario y el ID al servidor de sockets
+                socket.emit('usuario_conectado', { nombreUsuario, userID });
+    
                 // Redireccionar después de enviar el formulario
                 window.location.href = '/';
             });
-
-            // Restaurar el nombre de usuario al cargar la página
-            const storedNombreUsuario = localStorage.getItem('nombreUsuario');
-            if (storedNombreUsuario) {
+    
+            // Restaurar el nombre de usuario y el ID al cargar la página
+            const storedNombreUsuario = sessionStorage.getItem('nombreUsuario');
+            const storedUserID = sessionStorage.getItem('userID');
+            if (storedNombreUsuario && storedUserID) {
                 document.getElementById('nombre').value = storedNombreUsuario;
+                document.getElementById('ID').value = storedUserID;
             }
-
-            document.getElementById('enviarBtn').addEventListener('click', function() {
+    
+            document.getElementById('enviarBtn').addEventListener('click', function () {
                 enviarMensaje();
             });
-
+    
             function enviarMensaje() {
                 const mensaje = $('#mensajeInput').val();
-
-                // Obtener el nombre de usuario del Local Storage
-                const nombreUsuario = localStorage.getItem('nombreUsuario');
-
+    
+                // Obtener el nombre de usuario y el ID del sessionStorage
+                const nombreUsuario = sessionStorage.getItem('nombreUsuario');
+                const userID = sessionStorage.getItem('userID');
+    
                 $.ajax({
                     type: 'POST',
                     url: '/enviar-mensaje',
-                    data: JSON.stringify({ mensaje, nombreUsuario }),
+                    data: JSON.stringify({ mensaje, nombreUsuario, userID }),
                     contentType: 'application/json',
                     success: (respuesta) => {
                         console.log(respuesta);
                     }
                 });
             }
-
+    
             function mostrarMensaje(mensaje) {
                 $('#mensajes').append(`<div class="mensaje salida bg-blue-500 text-white p-3 rounded mb-2 max-w-md self-end"><strong>${mensaje.nombreUsuario}:</strong> ${mensaje.mensaje}</div>`);
+                $('#mensajes').append(`<div class="mensaje salida bg-blue-500 text-white p-3 rounded mb-2 max-w-md self-end"><strong>${mensaje.userID}:</strong> ${mensaje.mensaje}</div>`);
             }
         });
     </script>
@@ -62,11 +68,18 @@
     <div class="flex min-h-full flex-col justify-center px-6 py-12 lg:px-8">
         <div class="sm:mx-auto sm:w-full sm:max-w-sm">
             <img class="mx-auto h-10 w-auto" src="https://tailwindui.com/img/logos/mark.svg?color=indigo&shade=600" alt="Your Company">
-            <h2 class="mt-10 text-center text-2xl font-bold leading-9 tracking-tight text-gray-900">Ingrese su nombre</h2>
+            <h2 class="mt-10 text-center text-2xl font-bold leading-9 tracking-tight text-gray-900">Ingrese su usuario:</h2>
         </div>
       
         <div class="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
             <form id="loginForm" class="space-y-6">
+                <div>
+                    <label for="ID" class="block text-sm font-medium leading-6 text-gray-900">ID de Usuario:</label>
+                    <div class="mt-2">
+                        <input id="ID" name="ID" type="text" autocomplete="ID" required class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6">
+                    </div>
+                </div>                
+      
                 <div>
                     <label for="nombre" class="block text-sm font-medium leading-6 text-gray-900">Nombre de Usuario</label>
                     <div class="mt-2">
